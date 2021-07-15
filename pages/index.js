@@ -53,32 +53,69 @@ function ProfileRelationsBox(propriedades){
 export default function Home() {
 
 
-const [comunidades, setComunidades] = React.useState([{
-  id: '12802378123789378912789789123896123',
-  title: 'Eu odeio acordar cedo',
-  image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg'
-}]);
+  const [comunidades, setComunidades] = React.useState([{
+    id: '12802378123789378912789789123896123',
+    title: 'Eu odeio acordar cedo',
+    image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg'
+  }]);
 
 
 
 
-const githubUser =  'Vinicius029' 
-//const comunidades = [];
-const pessoasFavoritas = [
-                'juunegreiros',
-                'gustavoguanabara',
-                'peas',
-                'rafaballerini',
-                'marcobrunodev',
-                'felipefialho']
+  const githubUser =  'Vinicius029' 
+  //const comunidades = [];
+  const pessoasFavoritas = [
+                  'juunegreiros',
+                  'gustavoguanabara',
+                  'peas',
+                  'rafaballerini',
+                  'marcobrunodev',
+                  'felipefialho']
 
-const seguidores = fetch('https://api.github.com/users/Vinicius029/followers')
-  .then(function(resServidor){
-    return resServidor.json();
-  })
-  .then(function(resCompleta){
-    console.log(resCompleta)
-  })
+
+  const [seguidores, setSeguidores] = React.useState([]);
+  // 0 - Pegar o array de dados do github 
+  React.useEffect(function() {
+    // GET
+    fetch('https://api.github.com/users/Vinicius029/followers')
+    .then(function (respostaDoServidor) {
+      return respostaDoServidor.json();
+    })
+    .then(function(respostaCompleta) {
+      setSeguidores(respostaCompleta);
+    })
+
+
+    // API GraphQL
+    fetch('https://graphql.datocms.com/', {
+      method: 'POST',
+      headers: {
+        'Authorization': '02b5fa41f13c56290599d381c434a5',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ "query": `query {
+        allCommunities {
+          id 
+          title
+          imageUrl
+          
+          
+        }
+      }` })
+    })
+    .then((response) => response.json()) // Pega o retorno do response.json() e já retorna
+    .then((respostaCompleta) => {
+
+      const comunidadesVindasDoDato = respostaCompleta.data.allCommunities;
+      setComunidades(comunidadesVindasDoDato)
+    })
+    
+
+  },[])
+
+
+
 
   return (
     <>
@@ -156,8 +193,8 @@ const seguidores = fetch('https://api.github.com/users/Vinicius029/followers')
               {comunidades.map((comun) => {
                 return(
                   <li key={comun.id}>
-                    <a href={`/users/${comun.title}`}>
-                        <img src={comun.image}/>
+                    <a href={`/users/${comun.id}`}>
+                        <img src={comun.imageUrl}/>
                       <span>{comun.title}</span>
                     </a>
                   </li>
