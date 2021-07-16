@@ -8,24 +8,19 @@ import { ProfileRelationsBoxWrapper } from '../src/components/ProfileRelations';
 
 function ProfileSiderBar(propriedades){
   return(
-    
     <Box>
       <img src={`https://github.com/${propriedades.githubUser}.png`} style={{borderRadius:'8px'}}/><hr/>
-
       <p>
         <a className="boxLink" href={`https://github.com/${propriedades.githubUser}`} >
           @{propriedades.githubUser}
         </a>
       </p>
-
       <hr />
-
       <AlurakutProfileSidebarMenuDefault />
-     
-      
     </Box>
   )
 }
+
 
 function ProfileRelationsBox(propriedades){
   return(
@@ -52,18 +47,13 @@ function ProfileRelationsBox(propriedades){
 
 export default function Home() {
 
-
   const [comunidades, setComunidades] = React.useState([{
     id: '12802378123789378912789789123896123',
     title: 'Eu odeio acordar cedo',
     image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg'
   }]);
 
-
-
-
-  const githubUser =  'Vinicius029' 
-  //const comunidades = [];
+  const githubUser =  'Vinicius029'; 
   const pessoasFavoritas = [
                   'juunegreiros',
                   'gustavoguanabara',
@@ -99,8 +89,6 @@ export default function Home() {
           id 
           title
           imageUrl
-          
-          
         }
       }` })
     })
@@ -110,11 +98,7 @@ export default function Home() {
       const comunidadesVindasDoDato = respostaCompleta.data.allCommunities;
       setComunidades(comunidadesVindasDoDato)
     })
-    
-
   },[])
-
-
 
 
   return (
@@ -139,18 +123,26 @@ export default function Home() {
               const dadosDoForm = new FormData(e.target)
 
               const comunidade = {
-                id: new Date().toISOString(),
                 title: dadosDoForm.get('title'),
-                image: dadosDoForm.get('image')
-
+                imageUrl: dadosDoForm.get('image')
               }
-            
-              const comunidadesAtualizadas = [...comunidades, comunidade]
 
-             
-              setComunidades(comunidadesAtualizadas)
-              console.log(comunidadesAtualizadas)
-             
+              fetch('/api/comunidades',{
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(comunidade)
+              })
+              .then(async (response) => {
+                const dados = await response.json();
+                console.log(dados.registroCriado)
+                const comunidade = dados.registroCriado;
+
+                const comunidadesAtualizadas = [...comunidades, comunidade]
+                setComunidades(comunidadesAtualizadas)
+              })
+              
               
             }}>
               <div>
@@ -178,17 +170,13 @@ export default function Home() {
 
 
 
-
-
-
       <div className="profileRelationsArea" style={{ gridArea: 'profileRelationsArea' }}>
         
          
-         <ProfileRelationsBox title="Seguidores" items={seguidores} /> 
+        <ProfileRelationsBox title="Seguidores" items={seguidores} /> 
 
         <ProfileRelationsBoxWrapper>
-          <h2 className="smallTitle">comunidade ({comunidades.length})</h2>
-          
+          <h2 className="smallTitle">comunidade ({comunidades.length})</h2> 
           <ul>
               {comunidades.map((comun) => {
                 return(
@@ -206,7 +194,6 @@ export default function Home() {
 
         <ProfileRelationsBoxWrapper>
           <h2 className="smallTitle">Amigos ({pessoasFavoritas.length})</h2>
-         
           <ul>
             {pessoasFavoritas.map((pessoas) => {
               return(
